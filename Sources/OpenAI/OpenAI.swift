@@ -27,15 +27,14 @@ final public class OpenAI: OpenAIProtocol {
         public let gatewayHost: String?
         
         /// API version.
-        public let version: String
+        public let version: String = "/v1"
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", gatewayHost: String? = nil, version: String = "v1", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", gatewayHost: String? = nil, timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
-            self.version = version
             self.host = host
             self.gatewayHost = gatewayHost
             self.timeoutInterval = timeoutInterval
