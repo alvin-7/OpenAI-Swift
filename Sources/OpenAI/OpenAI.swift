@@ -24,7 +24,7 @@ final public class OpenAI: OpenAIProtocol {
         public let host: String
         
         /// API gateway. See https://gateway.ai.cloudflare.com
-        public let gatewayHost: String?
+        public let gatewayUrl: String?
         
         /// API version.
         public let version: String = "/v1"
@@ -36,7 +36,7 @@ final public class OpenAI: OpenAIProtocol {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
-            self.gatewayHost = gatewayHost
+            self.gatewayUrl = gatewayHost
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -203,9 +203,9 @@ extension OpenAI {
     func buildURL(path: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"
-        if let gatewayHost = configuration.gatewayHost {
-            components.host = gatewayHost + "/openai"
-            components.path = path
+        if let gatewayUrl = configuration.gatewayUrl {
+            let url = URL(string: gatewayUrl + "/openai" + path)
+            return url!
         } else {
             components.host = configuration.host
             components.path = configuration.version + path
