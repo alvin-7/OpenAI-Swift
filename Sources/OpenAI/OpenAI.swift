@@ -153,11 +153,17 @@ extension OpenAI {
     }
     
     func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        
+        var session: StreamingSession<ResultType>?
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingSession<ResultType>(urlRequest: request)
+            session = StreamingSession<ResultType>(urlRequest: request)
+            
+            guard let session = session else {
+                return
+            }
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
             }
@@ -171,6 +177,7 @@ extension OpenAI {
             session.perform()
             streamingSessions.append(session)
         } catch {
+            session?.cancel()
             completion?(error)
         }
     }

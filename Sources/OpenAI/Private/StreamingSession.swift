@@ -21,6 +21,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     var onProcessingError: ((StreamingSession, Error) -> Void)?
     var onComplete: ((StreamingSession, Error?) -> Void)?
     
+    private var dataTask: URLSessionDataTask?
     private let streamingCompletionMarker = "[DONE]"
     private let urlRequest: URLRequest
     private lazy var urlSession: URLSession = {
@@ -35,9 +36,11 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     }
     
     func perform() {
+        self.dataTask =
         self.urlSession
             .dataTask(with: self.urlRequest)
-            .resume()
+            
+        self.dataTask?.resume()
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -50,6 +53,11 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             return
         }
         processJSON(from: stringContent)
+    }
+    
+    func cancel() {
+        self.dataTask?.cancel()
+        onComplete?(self, nil)
     }
     
 }
