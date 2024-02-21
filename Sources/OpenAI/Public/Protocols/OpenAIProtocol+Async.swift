@@ -118,16 +118,18 @@ public extension OpenAIProtocol {
         query: ChatQuery
     ) -> AsyncThrowingStream<ChatStreamResult, Error> {
         return AsyncThrowingStream { continuation in
-            return chatsStream(query: query)  { result in
-                Task.detached {
+            Task.detached {
+                chatsStream(query: query) { result in
                     guard !Task.isCancelled else {
                         continuation.finish(throwing: CancellationError())
                         return
                     }
+                    
+                    continuation.yield(with: result)
+                } completion: { err in
+                    continuation.finish(throwing: err)
                 }
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
+                continuation.finish()
             }
         }
     }
